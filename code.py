@@ -8,6 +8,7 @@ import framebufferio
 import gc
 import math
 import picodvi
+import random
 import supervisor
 import sys
 from time import sleep
@@ -30,18 +31,75 @@ class LineTrail:
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
-        self.angle0 = angle1
-        self.angle1 = angle2
+        self.angle1 = angle1
+        self.angle2 = angle2
+        self.color = first_color
         self.width = bitmap.width
         self.height = bitmap.height
-        self.colors = len(palette)
-        self.speed = 5
-        self.max_lines = 10
+        self.max_color = len(palette) - 1
+        self.speed = 8
+        self.max_lines = 21
         self.bg_color = 0
 
     def update_trail(self):
-        # TODO: IMPLEMENT THIS
-        pass
+        """Compute endpoints of the next line and remove the last line"""
+        spd = self.speed
+        w = self.width
+        h = self.height
+        # Apply some random drift to the heading angles so that they don't get
+        # stuck in a boring repetitive pattern
+        drift = 2
+        a1 = self.angle1 + random.uniform(-drift, drift) % 360
+        a2 = self.angle2 + random.uniform(-drift, drift) % 360
+        # Compute new start point
+        a1r = math.radians(a1)
+        x1 = self.x1 + (spd * math.cos(a1r))
+        y1 = self.y1 + (spd * math.sin(a1r))
+        # Adjust for bounce if new point crossed an edge
+        if x1 < 0:
+            x1 = 0 - x1
+            a1 = (180 - a1) if (a1 <= 180) else (360 - (a1 - 180))
+        if x1 >= width:
+            x1 = width - (x1 - width)
+            a1 = (180 - a1) if (a1 >= 0) else (180 + (360 - a1))
+        if y1 < 0:
+            y1 = 0 - y1
+            a1 = (360 - a1) if (a1 <= 90) else (360 - a1)
+        if y1 >= height:
+            y1 = height - (y1 - height)
+            a1 = 360 - a1
+        self.x1 = x1
+        self.y1 = y1
+        self.angle1 = a1
+        # Compute new end point
+        a2r = math.radians(a2)
+        x2 = self.x2 + (spd * math.cos(a2r))
+        y2 = self.y2 + (spd * math.sin(a2r))
+        # Adjust for bounce if new point crossed an edge
+        if x2 < 0:
+            x2 = 0 - x2
+            a2 = (180 - a1) if (a1 <= 180) else (360 - (a1 - 180))
+        if x2 >= width:
+            x2 = width - (x2 - width)
+            a2 = (180 - a2) if (a2 >= 0) else (180 + (360 - a2))
+        if y2 < 0:
+            y2 = 0 - y2
+            a2 = (360 - a2) if (a2 <= 90) else (360 - a2)
+        if y2 >= height:
+            y2 = height - (y2 - height)
+            a2 = 360 - a2
+        self.x2 = x2
+        self.y2 = y2
+        self.angle2 = a2
+        # Compute new color
+        c = self.color
+        c = (1) if (c == self.max_color) else (c + 1)
+        self.color = c
+        # Add new line to the list, deleting the oldest line if needed
+        self.lines.append((round(x1), round(y1), round(x2), round(y2), c))
+        if len(self.lines) > self.max_lines:
+            self.lines.pop(0)
+
 
     def draw_into(self, bitmap):
         """Draw all the lines into the provided bitmap"""
@@ -150,4 +208,4 @@ while True:
     lines.update_trail()
     lines.draw_into(bitmap)
     display.refresh()
-    sleep(0.01)
+    sleep(0.06)
