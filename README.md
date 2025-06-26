@@ -2,12 +2,14 @@
 <!-- SPDX-FileCopyrightText: Copyright 2025 Sam Blenny -->
 # Fruit Jam Lines Screensaver
 
-This is a twisty-lines graphics toy inspired by retro screensavers from the
-1990's (Macintosh After Dark 2 Night Lines, Windows 95 Mystify, etc). To make
-the trail of lines, the code keeps track of two bouncing-ball style points and
-draws a line between them. Each new line gets added to a list, and the oldest
-line gets dropped off the end. The line colors cycle through a color swirl
-palette generated from a gradient using the LCh color space.
+This is a twisty-lines CircuitPython graphics toy inspired by screensavers from
+the 1990's (Macintosh After Dark 2 NightLines, Windows 95 Mystify, etc). To
+make the trail of lines, the code keeps track of two bouncing-ball style points
+and draws a line between them. Each new line gets added to a list, and the
+oldest line gets dropped off the end. The line colors cycle through a color
+swirl palette generated from a gradient using the LCh color space. This is
+meant for picodvi video output on RP2350 boards including Metro RP2350 and
+Fruit Jam.
 
 ![screenshot-1](img/lines-screenshot-1.png)
 
